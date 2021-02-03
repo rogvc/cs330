@@ -17,7 +17,7 @@ namespace RudimentaryInterpreter
                 }
                 else
                 {
-                    response = new Symbol(false);
+                    response = new Symbol("error");
                 }
                 // else if (input[0].Equals('(')) {
                 //     response = Parse(input.Substring(1));

@@ -2,47 +2,116 @@ using System;
 
 namespace RudimentaryInterpreter
 {
-    internal abstract class Expression
+    internal abstract class Expression { }
+    internal abstract class ExpressionWithTwoArguments
     {
-        protected object Value { get; private set; }
+        protected Expression LeftHandSide { get; private set; }
+        protected Expression RightHandSide { get; private set; }
 
-        public Expression(object value) => Value = value;
+        protected string ToStringPrologue => this.GetType().ToString();
+
+        public ExpressionWithTwoArguments(Expression leftHandSide, Expression rightHandSide)
+        {
+            LeftHandSide = leftHandSide;
+            RightHandSide = rightHandSide;
+        }
     }
 
     internal class Number : Expression
     {
-        public Number(object value) : base(value) { }
+        protected double Value { get; private set; }
+
+        public Number(double value) => Value = value;
 
         public override string ToString() => Value.ToString();
     }
 
-    internal class Addition : Expression
-    {
-        public Addition(object value) : base(value) { }
-    }
-
-    internal class Subtraction : Expression
-    {
-        public Subtraction(object value) : base(value) { }
-    }
-
-    internal class Multiplication : Expression
-    {
-        public Multiplication(object value) : base(value) { }
-    }
-
-    internal class Division : Expression
-    {
-        public Division(object value) : base(value) { }
-    }
-
-    internal class Substitution : Expression
-    {
-        public Substitution(object value) : base(value) { }
-    }
-
     internal class Symbol : Expression
     {
-        public Symbol(object value) : base(value) { }
+        protected string Value { get; private set; }
+
+        public Symbol(string value) => Value = value;
+
+        public override string ToString() => Value;
     }
+
+    internal class Addition : ExpressionWithTwoArguments
+    {
+        public Addition(Expression leftHandSide, Expression rightHandSide)
+            : base(leftHandSide, rightHandSide)
+        {
+        }
+
+        public override string ToString()
+            => String.Format(
+                "{0}({1} {2})",
+                ToStringPrologue,
+                Interpreter.Parse(LeftHandSide.ToString()),
+                Interpreter.Parse(RightHandSide.ToString())
+                );
+    }
+
+    internal class Subtraction : ExpressionWithTwoArguments
+    {
+        public Subtraction(Expression leftHandSide, Expression rightHandSide)
+            : base(leftHandSide, rightHandSide)
+        {
+        }
+
+        public override string ToString()
+            => String.Format(
+                "{0}({1} {2})",
+                ToStringPrologue,
+                Interpreter.Parse(LeftHandSide.ToString()),
+                Interpreter.Parse(RightHandSide.ToString())
+                );
+    }
+
+    internal class Multiplication : ExpressionWithTwoArguments
+    {
+        public Multiplication(Expression leftHandSide, Expression rightHandSide)
+            : base(leftHandSide, rightHandSide)
+        {
+        }
+
+        public override string ToString()
+            => String.Format(
+                "{0}({1} {2})",
+                ToStringPrologue,
+                Interpreter.Parse(LeftHandSide.ToString()),
+                Interpreter.Parse(RightHandSide.ToString())
+                );
+    }
+
+    internal class Division : ExpressionWithTwoArguments
+    {
+        public Division(Expression leftHandSide, Expression rightHandSide)
+            : base(leftHandSide, rightHandSide)
+        {
+        }
+
+        public override string ToString()
+            => String.Format(
+                "{0}({1} {2})",
+                ToStringPrologue,
+                Interpreter.Parse(LeftHandSide.ToString()),
+                Interpreter.Parse(RightHandSide.ToString())
+                );
+    }
+
+    // internal class Substitution : Expression
+    // {
+    //     public Substitution(Expression leftHandSide, Expression rightHandSide)
+    //         : base(leftHandSide, rightHandSide)
+    //     {
+    //     }
+
+    //     public override string ToString()
+    //         => String.Format(
+    //             "Substitution({0} {1})",
+    //             Interpreter.Parse(LeftHandSide.ToString()),
+    //             Interpreter.Parse(RightHandSide.ToString())
+    //             );
+    // }
+
 }
