@@ -1,42 +1,42 @@
 [
   {
-    "TestName": "Parse",
-    "Input": "1",
+    "TestName": "Parsing a Simple Number",
+    "Input": "parse(1)",
     "ExpectedResult": "1" 
   },
   {
-    "TestName": "Parse",
-    "Input": "(1)",
-    "ExpectedResult": "1" 
-  },
-  {
-    "TestName": "Parse",
-    "Input": "(+ 1 2)",
+    "TestName": "Parsing a Simple Addition",
+    "Input": "parse(+ 1 2)",
     "ExpectedResult": "Addition(1 2)" 
   },
   {
-    "TestName": "Parse",
-    "Input": "(+ (+ 1 1) 2)",
+    "TestName": "Parsing a Nested Addition",
+    "Input": "parse(+ (+ 1 1) 2)",
     "ExpectedResult": "Addition(Addition(1 1) 2)" 
   },
   {
-    "TestName": "Parse",
-    "Input": "(- 1 2)",
+    "TestName": "Parsing a Simple Subtraction",
+    "Input": "parse(- 1 2)",
     "ExpectedResult": "Subtraction(1 2)" 
   },
   {
-    "TestName": "Parse",
-    "Input": "(* 1 2)",
+    "TestName": "Parsing a Simple Multiplication",
+    "Input": "parse(* 1 2)",
     "ExpectedResult": "Multiplication(1 2)" 
   },
   {
-    "TestName": "Parse",
-    "Input": "(/ 1 2)",
+    "TestName": "Parsing a Simple Division",
+    "Input": "parse(/ 1 2)",
     "ExpectedResult": "Division(1 2)" 
   },
   {
-    "TestName": "Parse",
-    "Input": "(with([x 5]) x)",
+    "TestName": "Parsing a Simple Substitution",
+    "Input": "parse(with([x 5]) x)",
     "ExpectedResult": "Substitution([x 5] x)" 
+  },
+  {
+    "TestName": "Parsing a Complex Substitution",
+    "Input": "parse(with([x 100]) (+ x 10))",
+    "ExpectedResult": "Substitution([x 100] Addition(x 10))" 
   }
 ]
