@@ -1,0 +1,32 @@
+[
+  {
+    "FunctionName": "Parse",
+    "Input": "1",
+    "ExpectedResult": "1" 
+  },
+  {
+    "FunctionName": "Parse",
+    "Input": "(1)",
+    "ExpectedResult": "1" 
+  },
+  {
+    "FunctionName": "Parse",
+    "Input": "(+ 1 2)",
+    "ExpectedResult": "WAE_Addition(1 2)" 
+  },
+  {
+    "FunctionName": "Parse",
+    "Input": "(- 1 2)",
+    "ExpectedResult": "WAE_Subtraction(1 2)" 
+  },
+  {
+    "FunctionName": "Parse",
+    "Input": "(* 1 2)",
+    "ExpectedResult": "WAE_Multiplication(1 2)" 
+  },
+  {
+    "FunctionName": "Parse",
+    "Input": "(/ 1 2)",
+    "ExpectedResult": "WAE_Division(1 2)" 
+  }
+]
