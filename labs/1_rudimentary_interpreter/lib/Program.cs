@@ -9,8 +9,22 @@ namespace RudimentaryInterpreter
             var testCases = Loader.LoadJson(@"Resources\Tests.json");
             testCases.ForEach(test =>
             {
+                var result = Interpreter.Parse(test.Input);
                 Console.WriteLine(test);
-                Console.WriteLine(String.Format("Result: {0}.", Interpreter.Parse(test.Input)));
+                Console.Write(String.Format("Result: {0}.\t", result));
+
+                if (result.ToString().Equals(test.ExpectedResult))
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("Good.");
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Bad.");
+                }
+
+                Console.ForegroundColor = ConsoleColor.White;
             });
         }
 

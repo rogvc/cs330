@@ -11,9 +11,15 @@ namespace RudimentaryInterpreter
             Expression response;
             try
             {
+                var subString = "";
                 if (Char.IsDigit(input[0]))
                 {
                     response = new Number(Double.Parse(input[0].ToString()));
+                }
+                else if (input[0].Equals('('))
+                {
+                    subString = input.Substring(1, input.Length - 2); // Skips the opening and closing parenthesis
+                    response = Parse(subString);
                 }
                 else
                 {
