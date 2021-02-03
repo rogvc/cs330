@@ -11,17 +11,17 @@ namespace RudimentaryInterpreter
             {
                 var result = Interpreter.Parse(test.Input);
                 Console.WriteLine(test);
-                Console.Write(String.Format("Result: {0}.\t", result));
+                Console.Write(String.Format("Result: {0} : ", result));
 
                 if (result.ToString().Equals(test.ExpectedResult))
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("Good.");
+                    Console.WriteLine("GOOD");
                 }
                 else
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Bad.");
+                    Console.WriteLine("BAD");
                 }
 
                 Console.ForegroundColor = ConsoleColor.White;
@@ -32,10 +32,10 @@ namespace RudimentaryInterpreter
 
     public class TestCase
     {
-        public string FunctionName { get; set; }
+        public string TestName { get; set; }
         public string Input { get; set; }
         public string ExpectedResult { get; set; }
 
-        public override string ToString() => String.Format("{0}: {1} should be {2}", FunctionName, Input, ExpectedResult);
+        public override string ToString() => String.Format("{0}: {1} should be {2}", TestName, Input, ExpectedResult);
     }
 }

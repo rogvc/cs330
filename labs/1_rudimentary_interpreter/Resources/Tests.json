@@ -1,32 +1,42 @@
 [
   {
-    "FunctionName": "Parse",
+    "TestName": "Parse",
     "Input": "1",
     "ExpectedResult": "1" 
   },
   {
-    "FunctionName": "Parse",
+    "TestName": "Parse",
     "Input": "(1)",
     "ExpectedResult": "1" 
   },
   {
-    "FunctionName": "Parse",
+    "TestName": "Parse",
     "Input": "(+ 1 2)",
-    "ExpectedResult": "WAE_Addition(1 2)" 
+    "ExpectedResult": "Addition(1 2)" 
   },
   {
-    "FunctionName": "Parse",
+    "TestName": "Parse",
+    "Input": "(+ (+ 1 1) 2)",
+    "ExpectedResult": "Addition(Addition(1 1) 2)" 
+  },
+  {
+    "TestName": "Parse",
     "Input": "(- 1 2)",
-    "ExpectedResult": "WAE_Subtraction(1 2)" 
+    "ExpectedResult": "Subtraction(1 2)" 
   },
   {
-    "FunctionName": "Parse",
+    "TestName": "Parse",
     "Input": "(* 1 2)",
-    "ExpectedResult": "WAE_Multiplication(1 2)" 
+    "ExpectedResult": "Multiplication(1 2)" 
   },
   {
-    "FunctionName": "Parse",
+    "TestName": "Parse",
     "Input": "(/ 1 2)",
-    "ExpectedResult": "WAE_Division(1 2)" 
+    "ExpectedResult": "Division(1 2)" 
+  },
+  {
+    "TestName": "Parse",
+    "Input": "(with([x 5]) x)",
+    "ExpectedResult": "Substitution([x 5] x)" 
   }
 ]
