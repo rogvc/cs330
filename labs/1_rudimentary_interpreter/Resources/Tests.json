@@ -20,14 +20,29 @@
     "ExpectedResult": "Subtraction(1 2)" 
   },
   {
+    "TestName": "Parsing a Nested Subtraction",
+    "Input": "parse(- (- 4 2) 2)",
+    "ExpectedResult": "Subtraction(Subtraction(4 2) 2)" 
+  },
+  {
     "TestName": "Parsing a Simple Multiplication",
     "Input": "parse(* 1 2)",
     "ExpectedResult": "Multiplication(1 2)" 
   },
   {
+    "TestName": "Parsing a Nested Multiplication",
+    "Input": "parse(* (* 1 5) 2)",
+    "ExpectedResult": "Multiplication(Multiplication(1 5) 2)" 
+  },
+  {
     "TestName": "Parsing a Simple Division",
     "Input": "parse(/ 1 2)",
     "ExpectedResult": "Division(1 2)" 
+  },
+  {
+    "TestName": "Parsing a Nested Addition",
+    "Input": "parse(/ (/ 10 5) 2)",
+    "ExpectedResult": "Division(Division(10 5) 2)" 
   },
   {
     "TestName": "Parsing a Simple Substitution",
@@ -38,5 +53,65 @@
     "TestName": "Parsing a Complex Substitution",
     "Input": "parse(with([x 100]) (+ x 10))",
     "ExpectedResult": "Substitution([x 100] Addition(x 10))" 
+  },
+  {
+    "TestName": "Calculating a Simple Number",
+    "Input": "calc(parse(1))",
+    "ExpectedResult": "1" 
+  },
+  {
+    "TestName": "Calculating a Simple Addition",
+    "Input": "calc(parse(+ 1 2))",
+    "ExpectedResult": "3" 
+  },
+  {
+    "TestName": "Calculating a Nested Addition",
+    "Input": "calc(parse(+ (+ 1 1) 2))",
+    "ExpectedResult": "4" 
+  },
+  {
+    "TestName": "Calculating a Simple Subtraction",
+    "Input": "calc(parse(- 1 2))",
+    "ExpectedResult": "-1" 
+  },
+  {
+    "TestName": "Calculating a Nested Subtraction",
+    "Input": "calc(parse(- (- 1 1) 2))",
+    "ExpectedResult": "-2" 
+  },
+  {
+    "TestName": "Calculating a Simple Multiplication",
+    "Input": "calc(parse(* 1 2))",
+    "ExpectedResult": "2" 
+  },
+  {
+    "TestName": "Calculating a Nested Addition",
+    "Input": "calc(parse(* (* 1 5) 2))",
+    "ExpectedResult": "10" 
+  },
+  {
+    "TestName": "Calculating a Simple Division",
+    "Input": "calc(parse(/ 1 2))",
+    "ExpectedResult": "0.5" 
+  },
+  {
+    "TestName": "Calculating a Nested Division",
+    "Input": "calc(parse(/ (/ 1 4) 2))",
+    "ExpectedResult": "0.125" 
+  },
+  {
+    "TestName": "Calculating a Simple Substitution",
+    "Input": "calc(parse(with([x 5]) x))",
+    "ExpectedResult": "5" 
+  },
+  {
+    "TestName": "Calculating a Nested Substitution",
+    "Input": "calc(parse(with([x 100]) (+ x 10)))",
+    "ExpectedResult": "110" 
+  },
+  {
+    "TestName": "Calculating a Super Complex Expression",
+    "Input": "calc(parse(with([the-thing-is 10]) (with([i-am-very-tired 42]) (+ the-thing-is i-am-very-tired))))",
+    "ExpectedResult": "52" 
   }
 ]

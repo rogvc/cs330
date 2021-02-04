@@ -2,9 +2,14 @@ using System;
 
 namespace RudimentaryInterpreter
 {
-    internal abstract class Expression { }
+    internal abstract class Expression
+    {
+        internal abstract dynamic GetValue();
+    }
     internal abstract class ExpressionWithTwoArguments : Expression
     {
+        protected dynamic Value { get; private set; }
+
         protected Expression LeftHandSide { get; private set; }
         protected Expression RightHandSide { get; private set; }
 
@@ -23,6 +28,8 @@ namespace RudimentaryInterpreter
             LeftHandSide.ToString(),
             RightHandSide.ToString()
             );
+
+        internal override dynamic GetValue() => Value;
     }
 
     internal class Number : Expression
@@ -32,6 +39,8 @@ namespace RudimentaryInterpreter
         public Number(double value) => Value = value;
 
         public override string ToString() => Value.ToString();
+
+        internal override dynamic GetValue() => Value;
     }
 
     internal class Symbol : Expression
@@ -41,6 +50,8 @@ namespace RudimentaryInterpreter
         public Symbol(string value) => Value = value;
 
         public override string ToString() => Value;
+
+        internal override dynamic GetValue() => Value;
     }
 
     internal class Addition : ExpressionWithTwoArguments
