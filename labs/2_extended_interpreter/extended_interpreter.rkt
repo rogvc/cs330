@@ -46,6 +46,16 @@
   (not (member (s-exp->symbol s-exp) reserved-words))
 )
 
+(is-number : (S-Exp -> Boolean))
+(define (is-number s-exp)
+  (s-exp-match? `NUMBER s-exp)
+)
+
+(is-symbol : (S-Exp -> Boolean))
+(define (is-symbol s-exp)
+  (s-exp-match? `SYMBOL s-exp)
+)
+
 (is-binopC : (S-Exp -> Boolean))
 (define (is-binopC s-exp)
   (cond
@@ -65,6 +75,38 @@
       #f
     ]
   )
+)
+
+(is-named-expression : (S-Exp Symbol -> Boolean))
+(define (is-named-expression s-exp symbol)
+  (let ([se-list (s-exp->list s-exp)])
+    (type-case (Listof S-Exp) se-list
+      [empty
+        (error 'is-withC "Unexpected empty expression.")
+      ]
+      [(cons f r)
+        (if (equal? (s-exp->symbol f) symbol)
+          #t
+          #f
+        )
+      ]
+    )
+  )
+)
+
+(is-withC : (S-Exp -> Boolean))
+(define (is-withC s-exp)
+  (is-named-expression s-exp 'with)
+)
+
+(is-funC : (S-Exp -> Boolean))
+(define (is-funC s-exp)
+  (is-named-expression s-exp 'fun)
+)
+
+(is-if0C : (S-Exp -> Boolean))
+(define (is-if0C s-exp)
+  (is-named-expression s-exp 'if0)
 )
 
 (match-operator : (Symbol -> Op))
@@ -88,13 +130,88 @@
   )
 )
 
+(is-s-exp-symbol? : (S-Exp Symbol -> Boolean))
+(define (is-s-exp-symbol? s-exp symbol)
+  (if (and (s-exp-match? `SYMBOL s-exp) (equal? (s-exp->symbol s-exp) symbol))
+    #t
+    #f
+  )
+)
+
+(is-list-of-bindings? : (S-Exp -> Boolean))
+(define (is-list-of-bindings? s-exp)
+  (if (s-exp-match? `([ANY ANY] ...) s-exp)
+    #t
+    #f
+  )
+)
+
+(proper-with? : ((Listof S-Exp) -> Boolean))
+(define (proper-with? exp-list)
+  (type-case (Listof S-Exp) exp-list
+    [empty
+      #f
+    ]
+    [(cons f r)
+      (if (and (is-s-exp-symbol? f 'with) (is-list-of-bindings? (second exp-list)))
+        #t
+        #f
+      )
+    ]
+  )
+)
+
+(s-exp->binding : (S-Exp -> Binding))
+(define (s-exp->binding s-exp)
+  (let ([se-list (s-exp->list s-exp)])
+    (type-case (Listof S-Exp) se-list
+      [empty
+        (error 's-exp->binding "Unexpected empty expression.")  
+      ]
+      [(cons f r)
+        (if (s-exp-match? `SYMBOL f)
+          (binding (s-exp->symbol f) (parse (second se-list)))
+          (error 's-exp->binding "Binding should be of the format (binding [x : Symbol] [bound-expr : CFWAE]).")
+        )
+      ]
+    )
+  )
+)
+
+(any-duplicate-bindings? : ((Listof Binding) -> Boolean))
+(define (any-duplicate-bindings? bindings)
+  (type-case (Listof Binding) bindings
+    [empty
+      #f
+    ]
+    [(cons f r)
+      (if (member f r)
+        #t
+        (any-duplicate-bindings? r)
+      )
+    ]
+  )
+)
+
+(parse-bindings-list : ((Listof S-Exp) -> (Listof Binding)))
+(define (parse-bindings-list se-list)
+  (type-case (Listof S-Exp) se-list
+    [empty
+      empty
+    ]
+    [(cons f r)
+      (cons (s-exp->binding f) (parse-bindings-list r))
+    ]
+  ) 
+)
+
 (parse : (S-Exp -> CFWAE))
 (define (parse s-exp)
   (cond
-    [(s-exp-match? `NUMBER s-exp)
+    [(is-number s-exp)
       (numC (s-exp->number s-exp))
     ]
-    [(s-exp-match? `SYMBOL s-exp)
+    [(is-symbol s-exp)
       (if (valid-id? s-exp)
         (idC (s-exp->symbol s-exp))
         (error 'parse "Unexpected reserved word.")
@@ -115,9 +232,36 @@
               )
             ]
           )
-          (error 'parse "Expression needs to be in this format: (operator operand operand)")
+          (error 'parse "Expression needs to be in this format: (Op CFWAE CFWAE)")
         )
       ) 
+    ]
+    [(is-withC s-exp)
+      (let ([se-list (s-exp->list s-exp)])
+        (if (= (length se-list) 3)
+          (type-case (Listof S-Exp) se-list
+            [empty
+              (error 'parse "Unexpected empty expression.")
+            ]
+            [(cons f r)
+              (if (not (proper-with? se-list))
+                (error 'parse "Expression 'with' formatted incorrectly.")
+                (if (any-duplicate-bindings? (parse-bindings-list (s-exp->list (second se-list))))
+                  (error 'parse "Expression 'with' cannot have duplicate bindings")
+                  (withC
+                    (parse-bindings-list (s-exp->list (second se-list)))
+                    (parse (third se-list))
+                  )
+                )      
+              )
+            ]
+          )
+          (error 'parse "Expression needs to be in this format: (with ([id CFWAE] ...) CFWAE)")
+        )
+      )
+    ]
+    [(is-funC s-exp)
+      (....)
     ]
     [else
       (error 'parse "Operation not in our syntax.")
@@ -134,22 +278,7 @@
 (test (parse `(- 22 22)) (binopC (minusOp) (numC 22) (numC 22)))
 (test (parse `(* 22 22)) (binopC (multOp) (numC 22) (numC 22)))
 (test (parse `(/ 22 22)) (binopC (divOp) (numC 22) (numC 22)))
-(test (parse `(+ (- 22 10) (* 2 (/ 1 2)))) 
-  (binopC 
-    (plusOp) 
-    (binopC 
-      (minusOp) 
-      (numC 22) 
-      (numC 10)
-    ) 
-    (binopC 
-      (multOp)
-      (numC 2)
-      (binopC
-        (divOp)
-        (numC 1)
-        (numC 2)
-      )
-    )
-  )
-)
+(test (parse `(+ (- 22 10) (* 2 (/ 1 2)))) (binopC (plusOp) (binopC (minusOp) (numC 22) (numC 10)) (binopC (multOp) (numC 2) (binopC (divOp) (numC 1) (numC 2)))))
+(test (parse `(with ([x 10] [y 20] [z 10]) (+ x (- y z)))) (withC (list [binding 'x (numC 10)] [binding 'y (numC 20)] [binding 'z (numC 10)]) (binopC (plusOp) (idC 'x) (binopC (minusOp) (idC 'y) (idC 'z)))))
+(test/exn (parse `(with ([x 10] [x 10]) (x))) "parse: Expression 'with' cannot have duplicate bindings")
+(test (parse `(fun (x y) (+ x y))) (funC (list 'x 'y) (binopC (plusOp) (idC 'x) (idC 'Y))))
