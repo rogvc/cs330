@@ -21,17 +21,20 @@
 
 (non-skippable? : (Number Number -> Boolean))
 (define (non-skippable? d n)
-  (not (> (* 2 d) n))
+  (not (> (* d d) n))
 )
 
-(prime? : (Number -> Boolean))
-(define (prime? n)
+(prime?/fast : (Number -> Boolean))
+(define (prime?/fast n)
   (cond
     [(>= 1 n)
       #f
     ]
+    [(equal? 2 n)
+      #t
+    ]
     [else
-      (let ([n2 (take-while (lambda (d) (non-skippable? d n)) (rest (rest nats)))])
+      (let ([n2 (take-while (lambda (d) (non-skippable? d n)) primes/fast)])
         (prime?-rec n n2)
       ) 
     ]
@@ -47,33 +50,13 @@
     [(cons f r)
       (if (equal? (remainder n f) 0)
         #f
-        (prime?-rec n (rest ns))
+        (prime?-rec n r)
       )
-    ]
-  )
-)
-
-(primes : (Listof Number))
-(define primes
-  (filter prime? nats)
-)
-
-(prime?/fast : (Number -> Boolean))
-(define (prime?/fast n)
-  (cond
-    [(>= 1 n)
-      #f
-    ]
-    [(equal? 2 n)
-      #t
-    ]
-    [else
-      (prime?-rec n primes/fast)
     ]
   )
 )
 
 (primes/fast : (Listof Number))
 (define primes/fast
-  (cons 2 (filter prime?/fast (rest (rest nats))))
+  (filter prime?/fast (rest (rest nats)))
 )
