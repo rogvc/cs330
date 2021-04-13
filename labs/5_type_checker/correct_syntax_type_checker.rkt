@@ -130,6 +130,35 @@
   )
 )
 
+(is-cons? : (S-Exp -> Boolean))
+(define (is-cons? s-exp)
+  (if (s-exp-list? s-exp)
+    (is-cons?-rec (s-exp->list s-exp))
+    (equal? `empty s-exp)
+  )
+)
+
+(is-cons?-rec : ((Listof S-Exp) -> Boolean))
+(define (is-cons?-rec s-exp)
+  (type-case (Listof S-Exp) s-exp
+    [empty
+      (error 'parse "Should not reach the end of cons list.")
+    ]
+    [(cons f r)
+      (if (equal? `cons f)
+        (if (or 
+              (s-exp-number? (second s-exp)) 
+              (equal? (t-num) (type-of (parse (second s-exp))))
+            )
+          (is-cons? (third s-exp))
+          (error 'is-cons?-rec "Invalid Syntax.")
+        )
+        (equal? `empty (third s-exp))
+      )
+    ]
+  )
+)
+
 (parse : (S-Exp -> Expr))
 (define (parse s-exp)
   (cond
@@ -180,13 +209,35 @@
                 (app (parse f) (parse (second se-list)))
               ]
               [(equal? `cons f)
-                (ncons (parse (second se-list)) (parse (third se-list)))
+                (if (or 
+                      (s-exp-number? (first r)) 
+                      (equal? (t-num) (type-of (parse (first r))))
+                    )
+                  (cond
+                    [(is-cons? (second r))
+                      (ncons (parse (first r)) (parse (second r)))
+                    ]
+                    [(equal? `empty (second r))
+                      (ncons (parse (first r)) (parse (second r)))
+                    ]
+                    [else
+                      (error 'parse "Invalid Syntax.")
+                    ]
+                  )
+                  (error 'parse "Invalid Syntax.")
+                )
               ]
               [(equal? `first f)
-                (nfirst (parse (second se-list)))
+                (if (is-cons? (second se-list))
+                  (nfirst (parse (second se-list)))
+                  (error 'parse "Invalid Syntax.")
+                )
               ]
               [(equal? `rest f)
-                (nrest (parse (second se-list)))
+                (if (is-cons? (second se-list))
+                  (nrest (parse (second se-list)))
+                  (error 'parse "Invalid Syntax.")  
+                )
               ]
               [(equal? `empty? f)
                 (isnempty (parse (second se-list)))
@@ -345,7 +396,14 @@
       )
     ]
     [(nfirst e)
-      (type-of-rec e en)
+      (type-case Expr e
+        [(ncons f r)
+          (type-of-rec f en)
+        ]
+        [else
+          (error 'type-of "Invalid Syntax.")
+        ]
+      )
     ]
     [(nrest e)
       (if (equal? (t-nlist) (type-of-rec e en))
@@ -407,14 +465,25 @@
 (test/exn (type-of (parse `(fun (x : Boolean) : Boolean (+ x 45)))) "type-of: Right and Left sides should be numbers.")
 (test/exn (type-of (parse `(fun (x : Number) : Number (zero? x)))) "type-of: Body and Return Type have different types.")
 
-(test (type-of (parse `(cons 1 2))) (t-nlist))
-(test (type-of (parse `(cons 1 2 3 4 5 6))) (t-nlist))
-(test (type-of (parse `(cons 1 2 3 (+ 4 5) (- 6 1)))) (t-nlist))
-(test/exn (type-of (parse `(cons 3 false))) "type-of: Cons must receive a valid list expression.")
+(test (type-of (parse `(cons 1 empty))) (t-nlist))
+(test (type-of (parse `(cons 1 (cons 2 empty)))) (t-nlist))
+(test (type-of (parse `(cons 1 (cons 2 (cons 3 (cons 4 (cons 5 (cons 6 empty)))))))) (t-nlist))
+(test (type-of (parse `(cons (+ 1 1) empty))) (t-nlist))
+(test (type-of (parse `(cons 1 (cons 2 (cons 3 (cons (+ 4 5) (cons (- 6 1) empty))))))) (t-nlist))
+(test/exn (type-of (parse `(cons 3 2 1))) "parse: Invalid Syntax.")
+(test/exn (type-of (parse `(cons 3 false))) "parse: Invalid Syntax.")
+(test/exn (type-of (parse `(cons false (cons 3 empty)))) "parse: Invalid Syntax.")
 
 (test (type-of (parse `empty)) (t-nlist))
+(test (type-of (parse `(empty? empty))) (t-bool))
+(test (type-of (parse `(empty? (cons 1 empty)))) (t-bool))
 
-(test (type-of (parse `(first (+ 5 1)))) (t-num))
-(test (type-of (parse `(first true))) (t-bool))
-(test (type-of (parse `(first empty))) (t-nlist))
-(test/exn (type-of (parse `(first whoa))) "lookup: Unbound identifier whoa")
+(test (type-of (parse `(first (cons (+ 5 1) empty)))) (t-num))
+(test (type-of (parse `(first (cons 12 (cons 10 (cons 11 empty)))))) (t-num))
+(test/exn (type-of (parse `(first empty))) "type-of: Invalid Syntax.")
+(test/exn (type-of (parse `(first whoa))) "parse: Invalid Syntax.")
+
+(test (type-of (parse `(rest (cons (+ 5 1) empty)))) (t-nlist))
+(test (type-of (parse `(rest (cons 12 (cons 10 (cons 11 empty)))))) (t-nlist))
+(test (type-of (parse `(rest empty))) (t-nlist))
+(test/exn (type-of (parse `(rest whoa))) "parse: Invalid Syntax.")
