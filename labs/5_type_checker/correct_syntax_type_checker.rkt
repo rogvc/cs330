@@ -322,7 +322,7 @@
         [(equal? i 'false)
           (t-bool)
         ]
-        [(equal? i 'Number)
+        [(equal? i 'number)
           (t-num)
         ]
         [(equal? i 'Boolean)
@@ -362,7 +362,7 @@
     ]
     [(with i x b)
       (let [(nu-env (env i (type-of-rec x en) en))]
-        (begin (type-of-rec b nu-env) (type-of-rec x nu-env))
+        (begin (type-of-rec x nu-env) (type-of-rec b nu-env))
       )
     ]
     [(fun a t b bt)
@@ -399,6 +399,9 @@
       (type-case Expr e
         [(ncons f r)
           (type-of-rec f en)
+        ]
+        [(nempty)
+          (t-num)
         ]
         [else
           (error 'type-of "Invalid Syntax.")
@@ -455,15 +458,17 @@
 (test (type-of (parse `(with (x 55) (+ x 43)))) (t-num))
 (test (type-of (parse `(with (x (with (x 6) (+ 2 x))) (+ x 4)))) (t-num))
 (test (type-of (parse `(with (x false) x))) (t-bool))
+(test (type-of (parse `(with (x true) 5))) (t-num))
 (test (type-of (parse `(with (x (if true (* 5 2) (+ 1 2))) (+ 23 x)))) (t-num))
 (test/exn (type-of (parse `(with (x (zero? 43)) (+ 4 x)))) "type-of: Right and Left sides should be numbers.")
 (test/exn (type-of (parse `(with (x (if true (zero? 5) (zero? 0))) (+ 4 x)))) "type-of: Right and Left sides should be numbers.")
 
-(test (type-of (parse `(fun (x : Number) : Number (+ x 45)))) (t-fun (t-num) (t-num)))
+(test (type-of (parse `(fun (x : number) : number x))) (t-fun (t-num) (t-num)))
+(test (type-of (parse `(fun (x : number) : number (+ x 45)))) (t-fun (t-num) (t-num)))
 (test (type-of (parse `(fun (x : Boolean) : Boolean (if x true false)))) (t-fun (t-bool) (t-bool)))
-(test/exn (type-of (parse `(fun (x : Number) : Boolean (+ x 45)))) "type-of: Body and Return Type have different types.")
+(test/exn (type-of (parse `(fun (x : number) : Boolean (+ x 45)))) "type-of: Body and Return Type have different types.")
 (test/exn (type-of (parse `(fun (x : Boolean) : Boolean (+ x 45)))) "type-of: Right and Left sides should be numbers.")
-(test/exn (type-of (parse `(fun (x : Number) : Number (zero? x)))) "type-of: Body and Return Type have different types.")
+(test/exn (type-of (parse `(fun (x : number) : number (zero? x)))) "type-of: Body and Return Type have different types.")
 
 (test (type-of (parse `(cons 1 empty))) (t-nlist))
 (test (type-of (parse `(cons 1 (cons 2 empty)))) (t-nlist))
@@ -480,7 +485,7 @@
 
 (test (type-of (parse `(first (cons (+ 5 1) empty)))) (t-num))
 (test (type-of (parse `(first (cons 12 (cons 10 (cons 11 empty)))))) (t-num))
-(test/exn (type-of (parse `(first empty))) "type-of: Invalid Syntax.")
+(test (type-of (parse `(first empty))) (t-num))
 (test/exn (type-of (parse `(first whoa))) "parse: Invalid Syntax.")
 
 (test (type-of (parse `(rest (cons (+ 5 1) empty)))) (t-nlist))
